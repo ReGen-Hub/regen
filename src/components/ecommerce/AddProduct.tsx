@@ -62,7 +62,7 @@ export default function AddProduct() {
 
 
 const SaveData = () => {
-  console.log("fromData", fromData.Image);
+  console.log("fromData", fromData);
 }
 
 function imageUploaded(e: any, fieldName: any) {
