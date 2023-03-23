@@ -27,15 +27,15 @@ function dataURLtoFile(dataurl: any, filename:any) {
   return new File([u8arr], filename, {type:mime});
 }
 
-const web3 = new Web3(Web3.givenProvider)
-console.log("web3", web3);
+// const web3 = new Web3(Web3.givenProvider)
+const web3 = new Web3('https://matic-mumbai.chainstacklabs.com');
 const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk4MDU1NmE5NzM0RTkyNGJGRDFkNjA4QjA1QTk3OGIyQmY2RjhkMWMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Nzk1OTQ3Nzc2ODIsIm5hbWUiOiJSZWdlbiJ9.4G_gD1y-HgGUcGi0qMXvybZoNfeuuitK0w0PWSfi63E"
 //const token = process.env.API_TOKEN
 const client = new Web3Storage({ token })
 
 async function storeFiles (file: any) {
   var file1 = dataURLtoFile(file,'coverimage.png');
-console.log(file1);
+
   console.log("In store files befre")
   const files = [file1]
 
@@ -52,7 +52,7 @@ export default function AddProduct() {
 const abi: any = MarketABi
 const swapContract: any = new web3.eth.Contract(
     abi,
-    "0x7F5BBc3a5B21c04B238880bbb9de116224E65d7A"
+    "0x0672cb1E87e2229533BE9fB427178c8b115162E9"
 )
 
   const handleChange = (eventData: any, fieldName: any) => {
@@ -63,24 +63,53 @@ const swapContract: any = new web3.eth.Contract(
     })) 
   }
 
-  console.log("fromData", fromData);
-const SaveData = async () => {
-  console.log("swapContract.methods", swapContract.methods);
-  console.log("fromData", fromData);
-  
-  
-  const receipt = await swapContract.methods.createProduct(fromData.Name, fromData.Description, fromData.Catogories, fromData.Price, fromData.CorbonFootprint, fromData.Image, fromData.Quatntity)
-      .send({
-        from: user.address,
-      })
-      .on('transactionHash', async (hash: any) => console.log("hash", hash))
-      .on('receipt', function(receipt: any){
-        console.log("receipt", receipt)
-      }).on('error', function(error: any){
-        console.log("error", error);
-      });
-console.log("receipt", receipt);
+const SaveData = async () => {  
 
+  const rawTx = (nonce: any, value: any, gasPrice: any, ChainData: any, fromAddress: any, toAddress: any, code: any) => {
+    return {
+      nonce: nonce,
+      gasLimit: value,
+      gasPrice: gasPrice,
+      chainId: ChainData,
+      from: fromAddress,
+      to: toAddress,
+      data: code,
+    }
+  }
+
+  const gasPrice = await web3.eth?.getGasPrice();
+  const privateKey = "87555998ac0ff530e3bc5d9cfeff85a4ae64a5b9ecad29244e885f315b42be70";
+  const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+  try {
+    const code = await swapContract.methods.createProduct(fromData.Name, fromData.Description, fromData.Catogories, fromData.Price, fromData.CorbonFootprint, fromData.Image, fromData.Quatntity).encodeABI();
+    console.log("code", code);
+    
+    const nonce = await web3.eth.getTransactionCount(account.address);
+    const nonceData: any = web3.utils.toHex(nonce)
+    const value = await web3.eth.estimateGas({
+      "from": account.address,
+      "nonce": nonceData,
+      "to": "0x0672cb1E87e2229533BE9fB427178c8b115162E9",
+      "data": code,
+    })
+  
+    try {
+      const signature: any = await web3.eth.accounts.signTransaction(
+        rawTx(web3.utils.toHex(nonce), value, gasPrice, 80001, account.address, "0x0672cb1E87e2229533BE9fB427178c8b115162E9", code),
+        privateKey
+      );
+      web3.eth
+        .sendSignedTransaction(signature.rawTransaction)
+        .on("receipt", (receipt) => {
+          console.log("receipt", receipt);
+        });
+    } catch (error) {
+      console.log("transaction error", error);
+    }
+  }
+  catch  {
+    console.log("error");
+  }
 }
 
 function imageUploaded(e: any, fieldName: any) {
@@ -90,7 +119,6 @@ function imageUploaded(e: any, fieldName: any) {
     const value: any = reader?.result;
     if (value) {
       const base64String = value.replace("data:", "").replace(/^.+,/, "");
-      console.log("base64String", base64String);
       try {
         const image = await storeFiles(`data:image/png;base64,${base64String}`); 
         setFromData((prevState: any) => ({
