@@ -1,28 +1,26 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import AddProduct from '../components/ecommerce/AddProduct'
 
 const MarketPlace = () => {
-    const [state, setState] = useState("")
-    console.log("state", state);
-
-    const handleState = (event: any) => {
-       setState(event.target.innerText)
-        
-    }
-    
+    const navigation = [
+        { name: "Supplier", href: "/supplier" },
+        { name: "Customer", href: "/customer" }
+      ];
 
   return (
     <div className="relative">
         <div className="mx-auto px-12 lg:px-32 py-24">
-            <button onClick={(e: any) => handleState(e)}>Supplier</button>
-            <button onClick={(e: any) => handleState(e)} >Customer</button>
-            {
-                state == "Supplier" ? 
-                <>
-                 <AddProduct/>
-                </> :<></>
-            }
+            <div className="hidden lg:flex lg:gap-x-12">
+              {navigation.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  className="text-sm font-semibold leading-6 text-gray-900"
+                >
+                  {item.name}
+                </a>
+              ))}
+            </div>
         </div>
     </div>
   );
