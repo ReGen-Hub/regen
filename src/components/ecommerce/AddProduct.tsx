@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Web3Storage, getFilesFromPath } from 'web3.storage'  
+import Web3 from 'web3';
+import MarketABi from '../../abi/marketAbi.json'
 
 const data = [
   "Name",
@@ -23,10 +25,17 @@ function dataURLtoFile(dataurl: any, filename:any) {
   return new File([u8arr], filename, {type:mime});
 }
 
+const web3 = new Web3(Web3.givenProvider)
+console.log("web3", web3);
 const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk4MDU1NmE5NzM0RTkyNGJGRDFkNjA4QjA1QTk3OGIyQmY2RjhkMWMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Nzk1OTQ3Nzc2ODIsIm5hbWUiOiJSZWdlbiJ9.4G_gD1y-HgGUcGi0qMXvybZoNfeuuitK0w0PWSfi63E"
 //const token = process.env.API_TOKEN
 const client = new Web3Storage({ token })
-console.log(token , "checking token")
+
+const abi: any = MarketABi
+const swapContract: any = new web3.eth.Contract(
+    abi,
+    "0xC4FA8Ef3914b2b09714Ebe35D1Fb101F98aAd13b"
+)
 
 async function storeFiles (file: any) {
   var file1 = dataURLtoFile(file,'coverimage.png');
@@ -50,43 +59,36 @@ export default function AddProduct() {
       [`${fieldName}`]: eventData.target.value,
     })) 
   }
-  console.log(fromData)
 
 
 const SaveData = () => {
-  //console.log("fromData", fromData.Image);
-  uploadCoverImage(fromData.Image);
+  console.log("fromData", fromData.Image);
 }
+
 function imageUploaded(e: any, fieldName: any) {
   var file = e.target.files[0];
   var reader = new FileReader();
-  reader.onload = function () {
+  reader.onload = async function () {
     const value: any = reader?.result;
     if (value) {
       const base64String = value.replace("data:", "").replace(/^.+,/, "");
       console.log("base64String", base64String);
-      
-      setFromData((prevState: any) => ({
-        ...prevState,
-        [`${fieldName}`]: `data:image/png;base64,${base64String}`,
-      })) 
+      try {
+        const image = await storeFiles(`data:image/png;base64,${base64String}`); 
+        setFromData((prevState: any) => ({
+          ...prevState,
+          [`${fieldName}`]: image,
+        })) 
+        console.log(image)
+      } catch (err) {
+        console.log("Error Uploading Cover Image", err);
+      }
     }
   };
   if (file) {
     reader.readAsDataURL(file);
   }
 }
-
-const uploadCoverImage = async (coverImage: any) => {
-  console.log("Uploading Cover Image...");
-
-  try {
-    const image = await storeFiles(coverImage); 
-    console.log(image)
-  } catch (err) {
-    console.log("Error Uploading Cover Image", err);
-  }
-};
 
   return (
     <div className="space-y-8 divide-y divide-gray-200">
