@@ -1,4 +1,39 @@
-const Product = () => {
+import { Web3Storage, makeStorageClient } from 'web3.storage';
+import Web3 from 'web3';
+import MarketABi from '../../abi/marketAbi.json'
+
+const web3 = new Web3('https://matic-mumbai.chainstacklabs.com');
+
+async function retrieveFiles (cid:any) {
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk4MDU1NmE5NzM0RTkyNGJGRDFkNjA4QjA1QTk3OGIyQmY2RjhkMWMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Nzk1OTQ3Nzc2ODIsIm5hbWUiOiJSZWdlbiJ9.4G_gD1y-HgGUcGi0qMXvybZoNfeuuitK0w0PWSfi63E"
+  const client = new Web3Storage({ token })
+  const res = await client.get(cid)
+  //console.log(`Got a response! [${res.status}] ${res.statusText}`)
+  if (res) {
+    if (!res.ok) {
+      throw new Error(`failed to get ${cid}`)
+    }
+    // unpack File objects from the response
+    const files = await res.files()
+    return files[0].name
+  }
+}
+
+const Product = async() => {
+  const [data, setData] = useState({});
+  const abi: any = MarketABi
+const swapContract: any = new web3.eth.Contract(
+    abi,
+    "0x66EEF07c3CDA2e394d70108F0e775CE585a2D51e"
+)
+const products = await swapContract.methods.getProducts().call()
+
+  // const cid = feed.coverImageHash;
+  // if (cid){
+  //   retrieveFiles(cid, API_TOKEN)
+  //  .then((fn) => setData(fn))
+  // }
+
   return (
     <section className="">
       <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">

@@ -52,7 +52,7 @@ export default function AddProduct() {
 const abi: any = MarketABi
 const swapContract: any = new web3.eth.Contract(
     abi,
-    "0x0672cb1E87e2229533BE9fB427178c8b115162E9"
+    "0x66EEF07c3CDA2e394d70108F0e775CE585a2D51e"
 )
 
   const handleChange = (eventData: any, fieldName: any) => {
@@ -89,13 +89,13 @@ const SaveData = async () => {
     const value = await web3.eth.estimateGas({
       "from": account.address,
       "nonce": nonceData,
-      "to": "0x0672cb1E87e2229533BE9fB427178c8b115162E9",
+      "to": "0x66EEF07c3CDA2e394d70108F0e775CE585a2D51e",
       "data": code,
     })
   
     try {
       const signature: any = await web3.eth.accounts.signTransaction(
-        rawTx(web3.utils.toHex(nonce), value, gasPrice, 80001, account.address, "0x0672cb1E87e2229533BE9fB427178c8b115162E9", code),
+        rawTx(web3.utils.toHex(nonce), value, gasPrice, 80001, account.address, "0x66EEF07c3CDA2e394d70108F0e775CE585a2D51e", code),
         privateKey
       );
       web3.eth
