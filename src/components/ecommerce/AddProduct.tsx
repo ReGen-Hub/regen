@@ -8,35 +8,31 @@ const data = [
   "Price",
   "Corbon Footprint",
 ];
-function makeFileObjects () {
-  // You can create File objects from a Blob of binary data
-  // see: https://developer.mozilla.org/en-US/docs/Web/API/Blob
-  // Here we're just storing a JSON object, but you can store images,
-  // audio, or whatever you want!
-  const obj = { hello: 'world' }
-  const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' })
-
-  const files = [
-    new File(['contents-of-file-1'], 'plain-utf8.txt'),
-    new File([blob], 'hello.json')
-  ]
-  return files
+function dataURLtoFile(dataurl: any, filename:any) {
+ 
+  var arr = dataurl.split(','),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]), 
+      n = bstr.length, 
+      u8arr = new Uint8Array(n);
+      
+  while(n--){
+      u8arr[n] = bstr.charCodeAt(n);
+  }
+  
+  return new File([u8arr], filename, {type:mime});
 }
+
 const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk4MDU1NmE5NzM0RTkyNGJGRDFkNjA4QjA1QTk3OGIyQmY2RjhkMWMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Nzk1OTQ3Nzc2ODIsIm5hbWUiOiJSZWdlbiJ9.4G_gD1y-HgGUcGi0qMXvybZoNfeuuitK0w0PWSfi63E"
 //const token = process.env.API_TOKEN
 const client = new Web3Storage({ token })
 console.log(token , "checking token")
 
 async function storeFiles (file: any) {
-  const [data, setData] = useState({});
-  fetch(file)
-    .then(res => res.blob())
-    .then(blob => {
-      const file = new File([blob], 'dot.png', blob)
-  console.log(file)
-})
+  var file1 = dataURLtoFile(file,'coverimage.png');
+console.log(file1);
   console.log("In store files befre")
-  const files = data
+  const files = [file1]
 
   const cid = await client.put(files)
   console.log("In store files : ", cid)
@@ -58,7 +54,7 @@ export default function AddProduct() {
 
 
 const SaveData = () => {
-  console.log("fromData", fromData.Image);
+  //console.log("fromData", fromData.Image);
   uploadCoverImage(fromData.Image);
 }
 function imageUploaded(e: any, fieldName: any) {
@@ -85,8 +81,7 @@ const uploadCoverImage = async (coverImage: any) => {
   console.log("Uploading Cover Image...");
 
   try {
-    const file = "/Users/purvachaudhari/Downloads/image.png"
-    const image = await storeFiles(file); 
+    const image = await storeFiles(coverImage); 
     console.log(image)
   } catch (err) {
     console.log("Error Uploading Cover Image", err);
