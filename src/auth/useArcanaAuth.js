@@ -15,6 +15,8 @@ const useProvideAuth = (auth) => {
   const [user, setUser] = React.useState(null);
   const providerRef = React.useRef(auth.provider);
 
+  console.log("user", user);
+
   const loginWithSocial = async (p) => {
     await auth.init();
     await auth.loginWithSocial(p);

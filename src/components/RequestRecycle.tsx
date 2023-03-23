@@ -51,10 +51,10 @@ const RequestRecycle = ({ handleStepClick }: any) => {
 
   return (
     <>
-      <div className="relative bg-green-50">
-        <div className="mx-auto px-12 lg:px-32 py-24">
+      <div className="relative">
+        <div className="mx-auto px-12 lg:px-32 py-16">
           <div>
-            <p className="text-3xl">What would you like to se?</p>
+            <p className="text-3xl">What would you like to sell?</p>
           </div>
           <div className="grid grid-cols-4 pt-16 gap-x-6 gap-y-12">
             {RecyleContants.map((item: any, index: any) => {

@@ -61,7 +61,7 @@ const ScrapeRates = ({ handleStepClick }: any) => {
 
   return (
     <>
-      <div className="relative bg-green-50">
+      <div className="relative">
         <div className="mx-auto px-12 lg:px-32 py-24">
           <div>
             <p className="text-3xl pb-12">Select scrape rates?</p>

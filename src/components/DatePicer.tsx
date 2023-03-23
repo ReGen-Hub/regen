@@ -8,6 +8,8 @@ import { useArcanaAuth } from "../auth/useArcanaAuth";
 function DatePickerComp() {
 
     const { user, connect, isLoggedIn, loading, loginWithSocial, provider, logout }: any = useArcanaAuth();
+    console.log("provider", provider);
+    
     const web3 = new Web3(provider)
   const [startDate, setStartDate] = useState(new Date());
   const [location, setLocation] = useState<any>();
@@ -78,14 +80,15 @@ function DatePickerComp() {
           },
         ];
         let encryptionPublicKey = web3.eth.accounts.wallet.encrypt('test');
+        console.log("web3.eth.accounts", web3.eth.accounts);
         console.log("encryptionPublicKey", encryptionPublicKey);
     }
 
-    console.log("web3.eth.accounts", web3.eth.accounts);
+
     
 
   return (
-    <div className="relative bg-green-50 w-full h-screen px-32">
+    <div className="relative w-full h-screen px-32">
       <div className="flex w-[200px] justify-center mx-auto py-24">
         <div className="flex bg-white items-center border border-green-600 border-opacity-40 rounded-xl">
           <div className="pl-2">

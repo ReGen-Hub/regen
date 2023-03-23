@@ -29,7 +29,7 @@ function App({ Component, pageProps }: any) {
 
       <div className="flex flex-col app-container h-screen">
         <div className="relative">
-          <div className="flex flex-col ">
+          <div className="flex flex-col bg-regen-primary-gradient">
             {/* <Header/> */}
             <Layout className="transition-all duration-300 flex-grow" ref={AppMainBody}>
               <Header/>

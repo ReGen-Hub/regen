@@ -54,7 +54,7 @@ const PurchaseFlow = () => {
   };
 
   return (
-    <div className="relative bg-green-50">
+    <div className="relative">
         <div className="flex justify-between mx-auto px-12 lg:px-32 pt-12">
             <div>
                 <button disabled={step === 1} onClick={prevStep}>Back</button>
