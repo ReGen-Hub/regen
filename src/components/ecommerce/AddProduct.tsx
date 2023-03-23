@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Web3Storage, getFilesFromPath } from 'web3.storage'  
+
 const data = [
   "Name",
   " Description",
@@ -6,6 +8,20 @@ const data = [
   "Price",
   "Corbon Footprint",
 ];
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk4MDU1NmE5NzM0RTkyNGJGRDFkNjA4QjA1QTk3OGIyQmY2RjhkMWMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Nzk1OTQ3Nzc2ODIsIm5hbWUiOiJSZWdlbiJ9.4G_gD1y-HgGUcGi0qMXvybZoNfeuuitK0w0PWSfi63E"
+//const token = process.env.API_TOKEN
+const client = new Web3Storage({ token })
+console.log(token , "checking token")
+
+async function storeFiles (file) {
+  const files = [file]
+
+  const cid = await client.put(files)
+
+  return cid;
+
+}
+
 export default function AddProduct() {
   const [fromData, setFromData] = useState("");
   const handleChange = (eventData: any, fieldName: any) => {
@@ -14,14 +30,35 @@ export default function AddProduct() {
       [`${fieldName}`]: eventData,
     }));
   }
+  console.log(fromData)
+
 
 const SaveData = () => {
+  
+  const coverImageRef = useRef();
+  uploadCoverImage(fromData.image);
   console.log("fromData", fromData);
   
 }
+const uploadCoverImage = async (coverImage) => {
+  console.log("Uploading Cover Image...");
+
+  try {
+    
+    //const image = await client.add(coverImage);
+    
+    /*
+     * Save the new feed to the blockchain
+     */
+    const image = await storeFiles(coverImage); 
+    console.log(image)
+  } catch (err) {
+    console.log("Error Uploading Cover Image");
+  }
+};
 
   return (
-    <form className="space-y-8 divide-y divide-gray-200">
+    <div className="space-y-8 divide-y divide-gray-200">
       
       <div className="space-y-8 divide-y divide-gray-200 sm:space-y-5">
         <div className="space-y-6 sm:space-y-5">
@@ -119,6 +156,6 @@ const SaveData = () => {
          </button>
         </div>
       </div>
-    </form>
+    </div>
   );
 }
