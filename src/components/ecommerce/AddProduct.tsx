@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Web3Storage, getFilesFromPath } from 'web3.storage'  
+
 const data = [
   "Name",
   " Description",
@@ -6,22 +8,71 @@ const data = [
   "Price",
   "Corbon Footprint",
 ];
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk4MDU1NmE5NzM0RTkyNGJGRDFkNjA4QjA1QTk3OGIyQmY2RjhkMWMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Nzk1OTQ3Nzc2ODIsIm5hbWUiOiJSZWdlbiJ9.4G_gD1y-HgGUcGi0qMXvybZoNfeuuitK0w0PWSfi63E"
+//const token = process.env.API_TOKEN
+const client = new Web3Storage({ token })
+console.log(token , "checking token")
+
+async function storeFiles (file: any) {
+  const files = [file]
+
+  const cid = await client.put(files)
+
+  return cid;
+
+}
+
 export default function AddProduct() {
-  const [fromData, setFromData] = useState("");
+  const [fromData, setFromData] = useState<any>();
+
   const handleChange = (eventData: any, fieldName: any) => {
+    fieldName === "Image" ? imageUploaded(eventData, fieldName) :
     setFromData((prevState: any) => ({
       ...prevState,
-      [`${fieldName}`]: eventData,
-    }));
+      [`${fieldName}`]: eventData.target.value,
+    })) 
   }
+  console.log(fromData)
+
 
 const SaveData = () => {
+  uploadCoverImage(fromData.image);
   console.log("fromData", fromData);
   
 }
+function imageUploaded(e: any, fieldName: any) {
+  var file = e.target.files[0];
+  var reader = new FileReader();
+  reader.onload = function () {
+    const value: any = reader?.result;
+    if (value) {
+      const base64String = value.replace("data:", "").replace(/^.+,/, "");
+      console.log("base64String", base64String);
+      
+      setFromData((prevState: any) => ({
+        ...prevState,
+        [`${fieldName}`]: `data:image/png;base64,${base64String}`,
+      })) 
+    }
+  };
+  if (file) {
+    reader.readAsDataURL(file);
+  }
+}
+
+const uploadCoverImage = async (coverImage: any) => {
+  console.log("Uploading Cover Image...");
+
+  try {
+    const image = await storeFiles(coverImage); 
+    console.log(image)
+  } catch (err) {
+    console.log("Error Uploading Cover Image");
+  }
+};
 
   return (
-    <form className="space-y-8 divide-y divide-gray-200">
+    <div className="space-y-8 divide-y divide-gray-200">
       
       <div className="space-y-8 divide-y divide-gray-200 sm:space-y-5">
         <div className="space-y-6 sm:space-y-5">
@@ -48,7 +99,7 @@ const SaveData = () => {
                   <div className="mt-2 sm:col-span-2 sm:mt-0">
                     <div className="flex max-w-lg rounded-md shadow-sm">
                       <input
-                        onChange={(e) => handleChange(e.target.value, item)}
+                        onChange={(e) => handleChange(e, item)}
                         type="text"
                         name={item}
                         id={item}
@@ -92,7 +143,7 @@ const SaveData = () => {
                       >
                         <span>Upload a file</span>
                         <input
-                          onChange={(e) => handleChange(e.target.value, "Image")}
+                          onChange={(e) => handleChange(e, "Image")}
                           id="file-upload"
                           name="file-upload"
                           type="file"
@@ -119,6 +170,6 @@ const SaveData = () => {
          </button>
         </div>
       </div>
-    </form>
+    </div>
   );
 }
