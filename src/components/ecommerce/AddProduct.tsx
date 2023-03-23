@@ -14,10 +14,11 @@ const client = new Web3Storage({ token })
 console.log(token , "checking token")
 
 async function storeFiles (file: any) {
+  console.log("In store files befre", file)
   const files = [file]
 
   const cid = await client.put(files)
-
+  console.log("In store files : ", cid)
   return cid;
 
 }
@@ -36,9 +37,8 @@ export default function AddProduct() {
 
 
 const SaveData = () => {
+  console.log("fromData", fromData.image);
   uploadCoverImage(fromData.image);
-  console.log("fromData", fromData);
-  
 }
 function imageUploaded(e: any, fieldName: any) {
   var file = e.target.files[0];
@@ -61,13 +61,14 @@ function imageUploaded(e: any, fieldName: any) {
 }
 
 const uploadCoverImage = async (coverImage: any) => {
-  console.log("Uploading Cover Image...");
+  console.log("Uploading Cover Image...", coverImage);
 
   try {
+    
     const image = await storeFiles(coverImage); 
     console.log(image)
   } catch (err) {
-    console.log("Error Uploading Cover Image");
+    console.log("Error Uploading Cover Image", err);
   }
 };
 
