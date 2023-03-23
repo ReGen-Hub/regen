@@ -2,14 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { Web3Storage, getFilesFromPath } from 'web3.storage'  
 import Web3 from 'web3';
 import MarketABi from '../../abi/marketAbi.json'
-import { ethers } from 'ethers'
+import { useArcanaAuth } from "../../auth/useArcanaAuth";
 
 const data = [
   "Name",
-  " Description",
+  "Description",
   "Catogories",
   "Price",
-  "Corbon Footprint",
+  "CorbonFootprint",
+  "Quatntity"
 ];
 function dataURLtoFile(dataurl: any, filename:any) {
  
@@ -26,26 +27,11 @@ function dataURLtoFile(dataurl: any, filename:any) {
   return new File([u8arr], filename, {type:mime});
 }
 
-//const web3 = new Web3(Web3.givenProvider)
-//console.log("web3", web3);
+const web3 = new Web3(Web3.givenProvider)
+console.log("web3", web3);
 const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk4MDU1NmE5NzM0RTkyNGJGRDFkNjA4QjA1QTk3OGIyQmY2RjhkMWMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Nzk1OTQ3Nzc2ODIsIm5hbWUiOiJSZWdlbiJ9.4G_gD1y-HgGUcGi0qMXvybZoNfeuuitK0w0PWSfi63E"
 //const token = process.env.API_TOKEN
 const client = new Web3Storage({ token })
-
-// const abi: any = MarketABi
-// const swapContract: any = new web3.eth.Contract(
-//     abi,
-//     "0xC4FA8Ef3914b2b09714Ebe35D1Fb101F98aAd13b"
-// )
-
-const { ethereum } = window
-const provider = new ethers.providers.Web3Provider(ethereum)
-				const signer = provider.getSigner()
-				const pos = new ethers.Contract(
-					"0x8D12c7018Cbfe2f193ae693B8D61EFF5F4682fAd",
-					MarketABi,
-					signer
-				)
 
 async function storeFiles (file: any) {
   var file1 = dataURLtoFile(file,'coverimage.png');
@@ -61,6 +47,13 @@ console.log(file1);
 
 export default function AddProduct() {
   const [fromData, setFromData] = useState<any>();
+  const { user, connect, isLoggedIn, loading, loginWithSocial, provider, logout }: any = useArcanaAuth();
+
+const abi: any = MarketABi
+const swapContract: any = new web3.eth.Contract(
+    abi,
+    "0x7F5BBc3a5B21c04B238880bbb9de116224E65d7A"
+)
 
   const handleChange = (eventData: any, fieldName: any) => {
     fieldName === "Image" ? imageUploaded(eventData, fieldName) :
@@ -70,9 +63,24 @@ export default function AddProduct() {
     })) 
   }
 
-
-const SaveData = () => {
   console.log("fromData", fromData);
+const SaveData = async () => {
+  console.log("swapContract.methods", swapContract.methods);
+  console.log("fromData", fromData);
+  
+  
+  const receipt = await swapContract.methods.createProduct(fromData.Name, fromData.Description, fromData.Catogories, fromData.Price, fromData.CorbonFootprint, fromData.Image, fromData.Quatntity)
+      .send({
+        from: user.address,
+      })
+      .on('transactionHash', async (hash: any) => console.log("hash", hash))
+      .on('receipt', function(receipt: any){
+        console.log("receipt", receipt)
+      }).on('error', function(error: any){
+        console.log("error", error);
+      });
+console.log("receipt", receipt);
+
 }
 
 function imageUploaded(e: any, fieldName: any) {
