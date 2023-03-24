@@ -2,23 +2,31 @@ import React, { useState, useEffect } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import "tailwindcss/tailwind.css";
-import Web3 from 'web3';
+import Web3 from "web3";
 import { useArcanaAuth } from "../auth/useArcanaAuth";
+import { Web3Storage } from "web3.storage";
 
 function DatePickerComp() {
+  const {
+    user,
+    connect,
+    isLoggedIn,
+    loading,
+    loginWithSocial,
+    provider,
+    logout,
+  }: any = useArcanaAuth();
+  console.log("provider", provider);
 
-    const { user, connect, isLoggedIn, loading, loginWithSocial, provider, logout }: any = useArcanaAuth();
-    console.log("provider", provider);
-    
-    const web3 = new Web3(provider)
+  const web3 = new Web3(provider);
   const [startDate, setStartDate] = useState(new Date());
   const [location, setLocation] = useState<any>();
 
   useEffect(() => {
     const newData = {
-        "location": location,
-        "date": startDate
-    }
+      location: location,
+      date: startDate,
+    };
     sessionStorage.setItem("dateTime", JSON.stringify(newData));
   }, [startDate, location]);
 
@@ -68,24 +76,58 @@ function DatePickerComp() {
     .then((data) => console.log(data))
     .catch((error) => console.log(error));
 
-    const confrimOrder = () => {
-        const RecycleData: any = sessionStorage.getItem("scrapeRates");
-        const ScrpaeData: any = sessionStorage.getItem("recycleData");
-        const DateLocation: any = sessionStorage.getItem("dateTime");
-        const dataItem = [
-          {
-            RecycleData: JSON.parse(RecycleData),
-            ScrpaeData: JSON.parse(ScrpaeData),
-            DateLocation: JSON.parse(DateLocation),
-          },
-        ];
-        let encryptionPublicKey = web3.eth.accounts.wallet.encrypt('test');
-        console.log("web3.eth.accounts", web3.eth.accounts);
-        console.log("encryptionPublicKey", encryptionPublicKey);
-    }
+  function makeStorageClient() {
+    return new Web3Storage({
+      token:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDk4MDU1NmE5NzM0RTkyNGJGRDFkNjA4QjA1QTk3OGIyQmY2RjhkMWMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Nzk1OTQ3Nzc2ODIsIm5hbWUiOiJSZWdlbiJ9.4G_gD1y-HgGUcGi0qMXvybZoNfeuuitK0w0PWSfi63E",
+    });
+  }
+  const confrimOrder = () => {
+    const RecycleData: any = sessionStorage.getItem("scrapeRates");
+    const ScrpaeData: any = sessionStorage.getItem("recycleData");
+    const DateLocation: any = sessionStorage.getItem("dateTime");
+    const dataItem = [
+      {
+        RecycleData: JSON.parse(RecycleData),
+        ScrpaeData: JSON.parse(ScrpaeData),
+        DateLocation: JSON.parse(DateLocation),
+      },
+    ];
+    // const encryptedData = web3.eth.accounts.encrypt(user.address, dataItem);
 
+    // const decryptedData = web3.eth.accounts.decrypt(
+    //   encryptedData,
+    //   userData.password
+    // );
+    makeFileObjects(dataItem, user.address);
 
-    
+    let encryptionPublicKey = web3.eth.accounts.wallet.encrypt("test");
+    console.log("web3.eth.accounts", web3.eth.accounts);
+    console.log("encryptionPublicKey", encryptionPublicKey);
+  };
+
+  function makeFileObjects(encryptedData: any, data: any) {
+    const obj = encryptedData;
+    const blob = new Blob([JSON.stringify(obj)], { type: "application/json" });
+
+    const files = [
+      new File(["contents-of-file-1"], "plain-utf8.txt"),
+      new File([blob], "hello.json"),
+    ];
+
+    storeFiles(files, data);
+    return files;
+  }
+
+  async function storeFiles(files: any, data: any) {
+    const client = makeStorageClient();
+
+    const cid = await client.put(files, {
+      name: `${user.address}`,
+    });
+
+    console.log("cid", cid);
+  }
 
   return (
     <div className="relative w-full h-screen px-32">
@@ -130,7 +172,7 @@ function DatePickerComp() {
       </div>
       <div className="flex justify-end pt-12">
         <button
-        onClick={confrimOrder}
+          onClick={confrimOrder}
           className="text-white font-normal text-md bg-green-500 rounded-xl px-3 py-2"
         >
           Confirm Order

@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from "react";
-import { Web3Storage, getFilesFromPath } from 'web3.storage'  
+import { useState} from "react";
+import { Web3Storage } from 'web3.storage'  
 import Web3 from 'web3';
 import MarketABi from '../../abi/marketAbi.json'
 import { useArcanaAuth } from "../../auth/useArcanaAuth";
+import FiatonRamp from "./FiatonRamp";
 
 const data = [
   "Name",
@@ -149,6 +150,9 @@ function imageUploaded(e: any, fieldName: any) {
               This information will be displayed publicly so be careful what you
               share.
             </p>
+          </div>
+          <div>
+          <FiatonRamp/>
           </div>
 
           <div className="space-y-6 sm:space-y-5">
